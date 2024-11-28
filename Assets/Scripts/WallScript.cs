@@ -6,7 +6,10 @@ public class WallScript : MonoBehaviour
 
     void Start()
     {
-        hitSound = GetComponent<AudioSource>();
+        hitSound = GetComponent<AudioSource>(); 
+        GameState.AddChangeListener(
+            OnSoundsVolumeChanged,
+            nameof(GameState.effectsVolume));
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -15,5 +18,16 @@ public class WallScript : MonoBehaviour
         {
             hitSound.Play();
         }
+    }
+    private void OnSoundsVolumeChanged(string name)
+    {
+        hitSound.volume = GameState.effectsVolume;
+    }
+
+    private void OnDestroy()
+    {
+        GameState.RemoveChangeListener(
+            OnSoundsVolumeChanged,
+            nameof(GameState.effectsVolume));
     }
 }

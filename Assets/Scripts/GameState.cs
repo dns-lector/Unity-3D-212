@@ -7,7 +7,50 @@ public class GameState
     public static bool isDay { get; set; }
     public static bool isFpv { get; set; }
 
-    public static float effectsVolume { get; set; } = 1f;
+    #region effectsVolume
+    private static float _effectsVolume = 1f;
+    public static float effectsVolume { 
+        get => _effectsVolume; 
+        set
+        {
+            if(_effectsVolume != value)
+            {
+                _effectsVolume = value;
+                NotifyListeners(nameof(effectsVolume));
+            }
+        } 
+    }
+    #endregion
+
+    #region ambientVolume
+    private static float _ambientVolume = 1f;
+    public static float ambientVolume { 
+        get => _ambientVolume; 
+        set
+        {
+            if(_ambientVolume != value)
+            {
+                _ambientVolume = value;
+                NotifyListeners(nameof(ambientVolume));
+            }
+        } 
+    }
+    #endregion
+
+    #region isSoundsMuted ( muteAll )
+    private static bool _isSoundsMuted = false;
+    public static bool isSoundsMuted { 
+        get => _isSoundsMuted; 
+        set
+        {
+            if(_isSoundsMuted != value)
+            {
+                _isSoundsMuted = value;
+                NotifyListeners(nameof(isSoundsMuted));
+            }
+        } 
+    }
+    #endregion
 
     #region Change Notifier
     private static Dictionary<String, List<Action<string>>> changeListeners = new();
@@ -18,6 +61,7 @@ public class GameState
             changeListeners[name] = new List<Action<string>>();
         }
         changeListeners[name].Add(listener);
+        listener(name);
     }
     public static void RemoveChangeListener(Action<string> listener, String name)
     {
