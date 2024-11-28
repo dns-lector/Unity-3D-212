@@ -1,27 +1,30 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
 public class Gate1Script : MonoBehaviour
 {
-    private string closedMessage = "Двері зачинено!\r\nДля відкривання двері необхідно знайти ключ № 1. Продовжуйте пошук";
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(collision.gameObject.name == "Character")
-        {
-            bool r = Random.value < 0.5f;
-            MessagesScript.ShowMessage(closedMessage + r);
-        }
-    }
-
-
+    private string closedMessage = "Р”РІРµСЂС– Р·Р°С‡РёРЅРµРЅРѕ!\r\nР”Р»СЏ РІС–РґРєСЂРёРІР°РЅРЅСЏ РґРІРµСЂС– РЅРµРѕР±С…С–РґРЅРѕ Р·РЅР°Р№С‚Рё РєР»СЋС‡ в„– 1. РџСЂРѕРґРѕРІР¶СѓР№С‚Рµ РїРѕС€СѓРє";
+    private AudioSource closedSound;
 
     void Start()
     {
-        
+        closedSound = GetComponent<AudioSource>();
     }
 
     void Update()
     {
         
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.name == "Character")
+        {
+            // bool r = Random.value < 0.5f;
+            MessagesScript.ShowMessage(closedMessage);
+
+            closedSound.volume = GameState.effectsVolume;
+            closedSound.Play();
+        }
+    }
+
 }

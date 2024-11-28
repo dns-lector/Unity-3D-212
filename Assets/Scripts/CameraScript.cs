@@ -24,6 +24,8 @@ public class CameraScript : MonoBehaviour
 
     void Update()
     {
+        if(Time.timeScale == 0.0f) return; 
+
         if (isFpv)
         {
             float wheel = Input.mouseScrollDelta.y;
