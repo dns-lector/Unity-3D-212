@@ -23,7 +23,9 @@ public class Gate1Script : MonoBehaviour
         if(collision.gameObject.name == "Character")
         {
             // bool r = Random.value < 0.5f;
-            MessagesScript.ShowMessage(closedMessage);
+            // MessagesScript.ShowMessage(closedMessage);
+            GameState.TriggerEvent("Gate", 
+                new GameEvents.GateEvent { message = closedMessage });
             closedSound.Play();
         }
     }

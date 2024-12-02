@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class GameState
 {
@@ -95,6 +96,37 @@ public class GameState
     public static void Collect(String itemName)
     {
         collectSubscribers.ForEach(s => s(itemName));
+    }
+    #endregion
+
+    #region eventSubscribers
+    private static Dictionary<String, List<Action<String, object>>> eventSubscribers = new();
+    public static void AddEventListener(Action<String, object> subscriber, string eventName)
+    {
+        if (eventSubscribers.ContainsKey(eventName))
+        {
+            eventSubscribers[eventName].Add(subscriber);
+        }
+        else
+        {
+            eventSubscribers[eventName] = new() { subscriber };
+        }
+    }
+    public static void RemoveEventListener(Action<String, object> subscriber, string eventName)
+    {
+        if (eventSubscribers.ContainsKey(eventName))
+        {
+            eventSubscribers[eventName].Remove(subscriber);
+        }
+        else UnityEngine.Debug.LogError("RemoveEventListener: empty key - " + eventName);
+    }
+    public static void TriggerEvent(String eventName, object data)
+    {
+        if (eventSubscribers.ContainsKey(eventName))
+        {
+            eventSubscribers[eventName].ForEach(s => s(eventName, data));
+        }
+        else UnityEngine.Debug.LogWarning("TriggerEvent: empty key - " + eventName);
     }
     #endregion
 }

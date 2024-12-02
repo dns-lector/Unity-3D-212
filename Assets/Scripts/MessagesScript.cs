@@ -20,6 +20,9 @@ public class MessagesScript : MonoBehaviour
             .GetComponent<TMPro.TextMeshProUGUI>();
 
         leftTime = 0f;
+
+        GameState.AddEventListener(OnGameEvent, "KeyPoint");
+        GameState.AddEventListener(OnGameEvent, "Gate");
     }
 
     void Update()
@@ -43,6 +46,28 @@ public class MessagesScript : MonoBehaviour
                 content.SetActive(true);
             }
         }
+    }
+
+    private void OnGameEvent(string eventName, object data)
+    {
+        {
+            if (data is GameEvents.KeyPointEvent e)
+            {
+                ShowMessage($"Знайдено ключ '{e.keyName}' " + (e.isInTime ? "вчасно" : "невчасно"));
+            }
+        }
+        {
+            if (data is GameEvents.GateEvent e)
+            {
+                ShowMessage(e.message);
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameState.RemoveEventListener(OnGameEvent, "KeyPoint");
+        GameState.RemoveEventListener(OnGameEvent, "Gate");
     }
 
     public static void ShowMessage(string message, float? timeout = null)
@@ -69,3 +94,7 @@ public class MessagesScript : MonoBehaviour
         public float? timeout { get; set; }
     }
 }
+/* Д.З. Перевести механізм виведення повідомлень від батарейки
+ * на ігрові події (Event)
+ * ** Додати відомості про кількість доданого заряду
+ */
