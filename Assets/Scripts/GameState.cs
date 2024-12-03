@@ -7,6 +7,8 @@ public class GameState
 {
     public static bool isDay { get; set; }
     public static bool isFpv { get; set; }
+    public static int room { get; set; } = 1;  // level
+    public static Dictionary<String, object> collectedItems { get; private set; } = new();
 
     #region effectsVolume
     private static float _effectsVolume = 1f;
@@ -55,20 +57,26 @@ public class GameState
 
     #region Change Notifier
     private static Dictionary<String, List<Action<string>>> changeListeners = new();
-    public static void AddChangeListener(Action<string> listener, String name)
+    public static void AddChangeListener(Action<string> listener, params String[] names)
     {
-        if ( ! changeListeners.ContainsKey(name))
+        foreach (String name in names)
         {
-            changeListeners[name] = new List<Action<string>>();
+            if (!changeListeners.ContainsKey(name))
+            {
+                changeListeners[name] = new List<Action<string>>();
+            }
+            changeListeners[name].Add(listener);
+            listener(name);
         }
-        changeListeners[name].Add(listener);
-        listener(name);
     }
-    public static void RemoveChangeListener(Action<string> listener, String name)
+    public static void RemoveChangeListener(Action<string> listener, params String[] names)
     {
-        if (changeListeners.ContainsKey(name))
+        foreach (String name in names)
         {
-            changeListeners[name].Remove(listener);
+            if (changeListeners.ContainsKey(name))
+            {
+                changeListeners[name].Remove(listener);
+            }
         }
     }
     private static void NotifyListeners(String name)
@@ -100,33 +108,56 @@ public class GameState
     #endregion
 
     #region eventSubscribers
+    private const string broadcastKey = "Broadcast";
     private static Dictionary<String, List<Action<String, object>>> eventSubscribers = new();
-    public static void AddEventListener(Action<String, object> subscriber, string eventName)
+    public static void AddEventListener(
+        Action<String, object> subscriber, 
+        params string[] eventNames)
     {
-        if (eventSubscribers.ContainsKey(eventName))
+        if(eventNames == null ||  eventNames.Length == 0)
         {
-            eventSubscribers[eventName].Add(subscriber);
+            eventNames = new string[1] { broadcastKey };
         }
-        else
+        foreach (string eventName in eventNames)
         {
-            eventSubscribers[eventName] = new() { subscriber };
+            if (eventSubscribers.ContainsKey(eventName))
+            {
+                eventSubscribers[eventName].Add(subscriber);
+            }
+            else
+            {
+                eventSubscribers[eventName] = new() { subscriber };
+            }
         }
     }
-    public static void RemoveEventListener(Action<String, object> subscriber, string eventName)
+
+    public static void RemoveEventListener(Action<String, object> subscriber, params string[] eventNames)
     {
-        if (eventSubscribers.ContainsKey(eventName))
+        if (eventNames == null || eventNames.Length == 0)
         {
-            eventSubscribers[eventName].Remove(subscriber);
+            eventNames = new string[1] { broadcastKey };
         }
-        else UnityEngine.Debug.LogError("RemoveEventListener: empty key - " + eventName);
+        foreach (string eventName in eventNames)
+        {
+            if (eventSubscribers.ContainsKey(eventName))
+            {
+                eventSubscribers[eventName].Remove(subscriber);
+            }
+            else UnityEngine.Debug.LogError("RemoveEventListener: empty key - " + eventName);
+        }
     }
+
     public static void TriggerEvent(String eventName, object data)
     {
         if (eventSubscribers.ContainsKey(eventName))
         {
             eventSubscribers[eventName].ForEach(s => s(eventName, data));
         }
-        else UnityEngine.Debug.LogWarning("TriggerEvent: empty key - " + eventName);
+
+        if (eventName != broadcastKey && eventSubscribers.ContainsKey(broadcastKey))
+        {
+            eventSubscribers[broadcastKey].ForEach(s => s(eventName, data));
+        }
     }
     #endregion
 }

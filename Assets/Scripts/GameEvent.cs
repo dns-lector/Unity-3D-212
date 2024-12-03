@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace GameEvents
 {
-    public class KeyPointEvent
+    public interface IMessage { string message { get; } }
+
+    public class KeyPointEvent : IMessage
     {
         public string keyName { get; set; }
         public bool isInTime { get; set; }
+        public string message { get; set; }
     }
 
-    public class GateEvent
+    public class GateEvent : IMessage
     {
         public string gateName { get; set; }
         public string message { get; set; }
