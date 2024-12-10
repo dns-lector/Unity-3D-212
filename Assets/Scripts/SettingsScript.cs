@@ -50,11 +50,75 @@ public class SettingsScript : MonoBehaviour
     }
     #endregion
 
+    #region Controls - Sensitivity
+    private Slider sensXSlider;
+    private Slider sensYSlider;
+    private Toggle linkToggle;
+    private bool isLinked;
+    private void initControlsSensitivity()
+    {
+        sensXSlider = transform
+           .Find("Content/Controls/SensXSlider")
+           .GetComponent<Slider>();
+        sensYSlider = transform
+           .Find("Content/Controls/SensYSlider")
+           .GetComponent<Slider>();
+        linkToggle = transform
+            .Find("Content/Controls/LinkToggle")
+            .GetComponent<Toggle>();
+        OnLinkToggle(linkToggle.isOn);
+        OnSensXSlider(sensXSlider.value);
+        if ( ! isLinked) OnSensYSlider(sensYSlider.value);
+    }
+    public void OnSensXSlider(System.Single value)
+    {
+        float sens = Mathf.Lerp(0.01f, 0.1f, value);
+        GameState.lookSensitivityX = sens;
+        if (isLinked)
+        {
+            sensYSlider.value = value;
+            GameState.lookSensitivityY = -sens;
+        }
+    }
+    public void OnSensYSlider(System.Single value)
+    {
+        float sens = Mathf.Lerp(-0.01f, -0.1f, value);
+        GameState.lookSensitivityY = sens;
+        if (isLinked)
+        {
+            sensXSlider.value = value;
+            GameState.lookSensitivityX = -sens;
+        }
+    }
+    public void OnLinkToggle(System.Boolean value)
+    {
+        isLinked = value;
+    }
+    #endregion
+
+    #region Controls - FPV limit
+    private Slider fpvSlider;
+    private void initControlsFpv()
+    {
+        fpvSlider = transform
+           .Find("Content/Controls/FpvSlider")
+           .GetComponent<Slider>();
+        OnFpvSlider(fpvSlider.value);
+    }
+    public void OnFpvSlider(System.Single value)
+    {
+        GameState.fpvRange = Mathf.Lerp(0.3f, 1.1f, value);       
+    }
+    #endregion
+
     void Start()
     {
         initSoundEffectsSlider();
         initSoundAmbientSlider();
         initSoundsMuteToggle();
+        initControlsSensitivity();
+        initControlsFpv();
+
         content = transform.Find("Content").gameObject;
         if (content.activeInHierarchy)
         {

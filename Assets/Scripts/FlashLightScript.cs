@@ -3,21 +3,23 @@ using UnityEngine;
 public class FlashLightScript : MonoBehaviour
 {
     private float charge;
-    private float worktime = 10.0f;
+    private float worktime = 100.0f;
     private Light flashLight;
+
+    public float chargeLevel => charge;
 
     void Start()
     {
         charge = 1.0f;
         flashLight = GetComponent<Light>();
-        GameState.AddCollectListener(ItemCollected);
+        GameState.AddEventListener(ItemCollected, "Battery");
     }
 
-    private void ItemCollected(string itemName)
+    private void ItemCollected(string eventName, object data)
     {
-        if(itemName == "Battery")
+        if(data is GameEvents.MessageEvent m)
         {
-            charge = 1.0f;
+            charge += (float) m.data;
         }
     }
 
@@ -27,7 +29,7 @@ public class FlashLightScript : MonoBehaviour
         {
             if(charge > 0)
             {
-                flashLight.intensity = charge;
+                flashLight.intensity = Mathf.Clamp01(charge);
                 charge -= Time.deltaTime / worktime;
             }
         }
@@ -43,5 +45,10 @@ public class FlashLightScript : MonoBehaviour
             if (f == Vector3.zero) f = Camera.main.transform.up;
             this.transform.forward = f.normalized;
         }        
+    }
+
+    private void OnDestroy()
+    {
+        GameState.RemoveEventListener(ItemCollected, "Battery");
     }
 }

@@ -8,6 +8,12 @@ namespace GameEvents
 {
     public interface IMessage { string message { get; } }
 
+    public class MessageEvent : IMessage
+    {
+        public object data { get; set; }
+        public string message { get; set; }
+    }
+
     public class KeyPointEvent : IMessage
     {
         public string keyName { get; set; }
